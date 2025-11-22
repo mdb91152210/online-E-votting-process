@@ -1,0 +1,335 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './AdminDashboard.css';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+const AdminDashboard = () => {
+  const [stats, setStats] = useState(null);
+  const [candidates, setCandidates] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showCandidateForm, setShowCandidateForm] = useState(false);
+  const [candidateForm, setCandidateForm] = useState({
+    name: '',
+    party: '',
+    description: '',
+    image: '',
+    isActive: true
+  });
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
+
+  const fetchData = async () => {
+    try {
+      if (activeTab === 'overview') {
+        const statsRes = await axios.get(`${API_URL}/admin/stats`);
+        setStats(statsRes.data.stats);
+      } else if (activeTab === 'candidates') {
+        const candidatesRes = await axios.get(`${API_URL}/admin/candidates`);
+        setCandidates(candidatesRes.data.candidates);
+      } else if (activeTab === 'users') {
+        const usersRes = await axios.get(`${API_URL}/admin/users`);
+        setUsers(usersRes.data.users);
+      }
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: 'Failed to fetch data'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCandidateSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_URL}/admin/candidates`, candidateForm);
+      setMessage({
+        type: 'success',
+        text: 'Candidate created successfully'
+      });
+      setCandidateForm({
+        name: '',
+        party: '',
+        description: '',
+        image: '',
+        isActive: true
+      });
+      setShowCandidateForm(false);
+      fetchData();
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to create candidate'
+      });
+    }
+  };
+
+  const handleDeleteCandidate = async (id) => {
+    if (window.confirm('Are you sure you want to delete this candidate?')) {
+      try {
+        await axios.delete(`${API_URL}/admin/candidates/${id}`);
+        setMessage({
+          type: 'success',
+          text: 'Candidate deleted successfully'
+        });
+        fetchData();
+      } catch (error) {
+        setMessage({
+          type: 'error',
+          text: 'Failed to delete candidate'
+        });
+      }
+    }
+  };
+
+  const toggleCandidateStatus = async (id, currentStatus) => {
+    try {
+      await axios.put(`${API_URL}/admin/candidates/${id}`, {
+        isActive: !currentStatus
+      });
+      fetchData();
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: 'Failed to update candidate'
+      });
+    }
+  };
+
+  if (loading && activeTab === 'overview') {
+    return <div className="loading">Loading dashboard...</div>;
+  }
+
+  return (
+    <div className="admin-dashboard">
+      <div className="container">
+        <div className="dashboard-card">
+          <h2>Admin Dashboard</h2>
+
+          <div className="dashboard-tabs">
+            <button
+              className={activeTab === 'overview' ? 'active' : ''}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </button>
+            <button
+              className={activeTab === 'candidates' ? 'active' : ''}
+              onClick={() => setActiveTab('candidates')}
+            >
+              Candidates
+            </button>
+            <button
+              className={activeTab === 'users' ? 'active' : ''}
+              onClick={() => setActiveTab('users')}
+            >
+              Users
+            </button>
+          </div>
+
+          {message.text && (
+            <div className={`message ${message.type}`}>
+              {message.text}
+            </div>
+          )}
+
+          {activeTab === 'overview' && stats && (
+            <div className="overview">
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-icon">👥</div>
+                  <div className="stat-info">
+                    <div className="stat-value">{stats.totalUsers}</div>
+                    <div className="stat-label">Total Users</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">🗳️</div>
+                  <div className="stat-info">
+                    <div className="stat-value">{stats.totalVotes}</div>
+                    <div className="stat-label">Total Votes</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">📊</div>
+                  <div className="stat-info">
+                    <div className="stat-value">{stats.votingPercentage}%</div>
+                    <div className="stat-label">Voting Percentage</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">🎯</div>
+                  <div className="stat-info">
+                    <div className="stat-value">{stats.activeCandidates}</div>
+                    <div className="stat-label">Active Candidates</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'candidates' && (
+            <div className="candidates-section">
+              <div className="section-header">
+                <h3>Candidates Management</h3>
+                <button
+                  onClick={() => setShowCandidateForm(!showCandidateForm)}
+                  className="btn btn-primary"
+                >
+                  {showCandidateForm ? 'Cancel' : 'Add Candidate'}
+                </button>
+              </div>
+
+              {showCandidateForm && (
+                <form onSubmit={handleCandidateSubmit} className="candidate-form">
+                  <div className="form-group">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      value={candidateForm.name}
+                      onChange={(e) =>
+                        setCandidateForm({ ...candidateForm, name: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Party</label>
+                    <input
+                      type="text"
+                      value={candidateForm.party}
+                      onChange={(e) =>
+                        setCandidateForm({ ...candidateForm, party: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      value={candidateForm.description}
+                      onChange={(e) =>
+                        setCandidateForm({ ...candidateForm, description: e.target.value })
+                      }
+                      rows="3"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Image URL</label>
+                    <input
+                      type="url"
+                      value={candidateForm.image}
+                      onChange={(e) =>
+                        setCandidateForm({ ...candidateForm, image: e.target.value })
+                      }
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Create Candidate
+                  </button>
+                </form>
+              )}
+
+              <div className="candidates-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Party</th>
+                      <th>Votes</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidates.map((candidate) => (
+                      <tr key={candidate._id}>
+                        <td>{candidate.name}</td>
+                        <td>{candidate.party}</td>
+                        <td>{candidate.voteCount}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              candidate.isActive ? 'active' : 'inactive'
+                            }`}
+                          >
+                            {candidate.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() =>
+                              toggleCandidateStatus(candidate._id, candidate.isActive)
+                            }
+                            className="btn btn-secondary btn-sm"
+                          >
+                            {candidate.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCandidate(candidate._id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'users' && (
+            <div className="users-section">
+              <h3>Users List</h3>
+              <div className="users-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Has Voted</th>
+                      <th>Registered</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user._id}>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              user.hasVoted ? 'voted' : 'not-voted'
+                            }`}
+                          >
+                            {user.hasVoted ? 'Yes' : 'No'}
+                          </span>
+                        </td>
+                        <td>
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;
+
+
