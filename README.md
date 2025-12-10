@@ -92,6 +92,17 @@ A secure, full-stack web application for online voting built with the MERN stack
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:5000
 
+## short way to start
+   You ran npm run dev from frontend, but that script only exists in the root package.json. Do this in PowerShell:
+1) From project root:
+cd "C:\Users\Asusr\Documents\online E-votting process"npm run install-all
+2) Start both services:
+npm run dev
+If you prefer separate terminals:
+Terminal 1 (root): npm run server
+Terminal 2 (root): npm run client
+Then open http://localhost:3000. If you hit another error, paste the next log lines.
+
 ## Usage
 
 ### For Users
