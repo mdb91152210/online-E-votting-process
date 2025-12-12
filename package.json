@@ -11,13 +11,18 @@
     "install-client": "cd frontend && npm install",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
-  "keywords": ["voting", "mern", "election"],
+  "keywords": [
+    "voting",
+    "mern",
+    "election"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "autoprefixer": "^10.4.22",
     "concurrently": "^8.2.2",
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18"
   }
 }
-
-
