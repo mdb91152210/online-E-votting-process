@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import './Voting.css';
@@ -13,7 +13,6 @@ const Voting = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.hasVoted) {

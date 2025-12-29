@@ -210,6 +210,65 @@ router.put('/results-publish', async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/users/register
+// @desc    Register a new user (Admin only)
+// @access  Private/Admin
+router.post('/users/register', [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: errors.array()[0].msg,
+        errors: errors.array()
+      });
+    }
+
+    const { name, email, password } = req.body;
+
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email already exists'
+      });
+    }
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: 'user'
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        hasVoted: user.hasVoted,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Admin user registration error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 module.exports = router;
 
 

@@ -5,7 +5,6 @@ import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import AdminLogin from './pages/AdminLogin';
 import Voting from './pages/Voting';
 import Results from './pages/Results';
@@ -21,7 +20,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               path="/voting"

@@ -8,7 +8,6 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [published, setPublished] = useState(false);
-  const [loadingResults, setLoadingResults] = useState(false);
 
   useEffect(() => {
     fetchResults();
@@ -18,7 +17,6 @@ export default function Home() {
 
   const fetchResults = async () => {
     try {
-      setLoadingResults(true);
       // Use public endpoint so results show for everyone when published
       const response = await axios.get(`${API_URL}/results/public`);
       setResults(response.data.results || []);
@@ -27,8 +25,6 @@ export default function Home() {
     } catch (error) {
       console.error('Failed to fetch results:', error);
       setPublished(false);
-    } finally {
-      setLoadingResults(false);
     }
   };
 
@@ -118,14 +114,10 @@ export default function Home() {
           >
             Login
           </Link>
-
-          <Link
-            to="/register"
-            className="px-8 py-3 bg-transparent border border-white hover:bg-white hover:text-indigo-700 rounded-full font-semibold transition"
-          >
-            Register
-          </Link>
         </div>
+        <p className="mt-4 text-sm opacity-75">
+          User registration is available only through administrators. Please contact your admin for account access.
+        </p>
       </section>
 
       {/* FEATURES SECTION */}

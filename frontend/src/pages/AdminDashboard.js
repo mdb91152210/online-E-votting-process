@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './AdminDashboard.css';
 
@@ -11,6 +11,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [showCandidateForm, setShowCandidateForm] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
   const [candidateForm, setCandidateForm] = useState({
     name: '',
     party: '',
@@ -18,14 +19,16 @@ const AdminDashboard = () => {
     image: '',
     isActive: true
   });
+  const [userForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [resultsPublished, setResultsPublished] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (activeTab === 'overview') {
         const statsRes = await axios.get(`${API_URL}/admin/stats`);
@@ -48,7 +51,11 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleToggleResultsPublish = async () => {
     try {
@@ -78,6 +85,54 @@ const AdminDashboard = () => {
       setMessage({
         type: 'error',
         text: error.response?.data?.message || error.message || 'Failed to update results status. Please check console for details.'
+      });
+    }
+  };
+
+  const handleUserSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (userForm.password !== userForm.confirmPassword) {
+      setMessage({
+        type: 'error',
+        text: 'Passwords do not match'
+      });
+      return;
+    }
+
+    if (userForm.password.length < 8) {
+      setMessage({
+        type: 'error',
+        text: 'Password must be at least 8 characters'
+      });
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_URL}/admin/users/register`, {
+        name: userForm.name,
+        email: userForm.email,
+        password: userForm.password
+      });
+
+      if (response.data.success) {
+        setMessage({
+          type: 'success',
+          text: `User "${response.data.user.name}" registered successfully!`
+        });
+        setUserForm({
+          name: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        });
+        setShowUserForm(false);
+        fetchData(); // Refresh users list
+      }
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to register user'
       });
     }
   };
@@ -361,7 +416,78 @@ const AdminDashboard = () => {
 
           {activeTab === 'users' && (
             <div className="users-section">
-              <h3>Users List</h3>
+              <div className="section-header">
+                <h3>Users Management</h3>
+                <button
+                  onClick={() => {
+                    setShowUserForm(!showUserForm);
+                    setMessage({ type: '', text: '' });
+                  }}
+                  className="btn btn-primary"
+                >
+                  {showUserForm ? 'Cancel' : 'Register New User'}
+                </button>
+              </div>
+
+              {showUserForm && (
+                <form onSubmit={handleUserSubmit} className="candidate-form" style={{ marginBottom: '2rem' }}>
+                  <h4 style={{ marginBottom: '1rem' }}>Register New User</h4>
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      value={userForm.name}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, name: e.target.value })
+                      }
+                      required
+                      placeholder="Enter user's full name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input
+                      type="email"
+                      value={userForm.email}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, email: e.target.value })
+                      }
+                      required
+                      placeholder="Enter user's email"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Password</label>
+                    <input
+                      type="password"
+                      value={userForm.password}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, password: e.target.value })
+                      }
+                      required
+                      placeholder="Enter password (min 8 characters)"
+                      minLength={8}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Confirm Password</label>
+                    <input
+                      type="password"
+                      value={userForm.confirmPassword}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, confirmPassword: e.target.value })
+                      }
+                      required
+                      placeholder="Confirm password"
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    Register User
+                  </button>
+                </form>
+              )}
+
+              <h3 style={{ marginTop: '2rem' }}>Users List</h3>
               <div className="users-table">
                 <table>
                   <thead>
