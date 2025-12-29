@@ -125,87 +125,7 @@ export default function Home() {
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
           Why Choose Our Platform?
         </h2>
-     {/* About Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6">About Our E-Voting System</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Our platform is built using modern MERN technologies to ensure transparency,
-            security, and a seamless voting experience. We aim to revolutionize traditional
-            voting by bringing it online with complete integrity.
-          </p>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-          <section className="py-20 bg-gray-100">
-            <div className="max-w-4xl mx-auto px-6">
-              <h2 className="text-3xl font-bold text-center mb-10">Contact Us</h2>
-
-              <form className="bg-white shadow-md p-8 rounded-xl space-y-4">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  className="w-full p-3 border rounded-lg"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  className="w-full p-3 border rounded-lg"
-                />
-                <textarea
-                  placeholder="Message"
-                  className="w-full p-3 border rounded-lg h-32"
-                ></textarea>
-
-                <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                  Send Message
-                </button>
-              </form>
-            </div>
-          </section>
-
-       {/* Footer */}
-          <footer className="bg-indigo-700 text-white py-10 mt-20">
-            <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-              
-              <div>
-                <h2 className="text-xl font-bold mb-2">E-Voting System</h2>
-                <p className="text-gray-200 text-sm">
-                  Secure • Fast • Transparent
-                </p>
-              </div>
-
-              <div>
-                <h2 className="font-semibold mb-2">Quick Links</h2>
-                <ul className="space-y-1 text-gray-200 text-sm">
-                  <li>About</li>
-                  <li>Contact</li>
-                  <li>How It Works</li>
-                  <li>Admin Login</li>
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="font-semibold mb-2">Follow Us</h2>
-                <div className="flex space-x-4 text-lg">
-                  <span>🔗</span>
-                  <span>🐦</span>
-                  <span>📘</span>
-                </div>
-              </div>
-
-            </div>
-
-            <p className="text-center text-gray-300 text-sm mt-10">
-              © {new Date().getFullYear()} E-Voting System. All Rights Reserved.
-            </p>
-          </footer>
-
-
-
-
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
           {/* Card 1 */}
           <div className="bg-white text-gray-800 p-8 rounded-2xl shadow-xl hover:-translate-y-2 transition">
             <div className="text-4xl mb-4">🔐</div>
@@ -234,6 +154,83 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* About Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-6">About Our E-Voting System</h2>
+          <p className="text-gray-600 leading-relaxed">
+            Our platform is built using modern MERN technologies to ensure transparency,
+            security, and a seamless voting experience. We aim to revolutionize traditional
+            voting by bringing it online with complete integrity.
+          </p>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="py-20 bg-gray-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-10">Contact Us</h2>
+
+          <form className="bg-white shadow-md p-8 rounded-xl space-y-4">
+            <input
+              type="text"
+              placeholder="Your Name"
+              className="w-full p-3 border rounded-lg"
+            />
+            <input
+              type="email"
+              placeholder="Your Email"
+              className="w-full p-3 border rounded-lg"
+            />
+            <textarea
+              placeholder="Message"
+              className="w-full p-3 border rounded-lg h-32"
+            ></textarea>
+
+            <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              Send Message
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-indigo-700 text-white py-10 mt-20">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+          
+          <div>
+            <h2 className="text-xl font-bold mb-2">E-Voting System</h2>
+            <p className="text-gray-200 text-sm">
+              Secure • Fast • Transparent
+            </p>
+          </div>
+
+          <div>
+            <h2 className="font-semibold mb-2">Quick Links</h2>
+            <ul className="space-y-1 text-gray-200 text-sm">
+              <li>About</li>
+              <li>Contact</li>
+              <li>How It Works</li>
+              <li>Admin Login</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="font-semibold mb-2">Follow Us</h2>
+            <div className="flex space-x-4 text-lg">
+              <span>🔗</span>
+              <span>🐦</span>
+              <span>📘</span>
+            </div>
+          </div>
+
+        </div>
+
+        <p className="text-center text-gray-300 text-sm mt-10">
+          © {new Date().getFullYear()} E-Voting System. All Rights Reserved.
+        </p>
+      </footer>
     </div>
   );
 }
