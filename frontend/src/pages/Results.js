@@ -8,6 +8,8 @@ const Results = () => {
   const [results, setResults] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [published, setPublished] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     fetchResults();
@@ -18,10 +20,13 @@ const Results = () => {
   const fetchResults = async () => {
     try {
       const response = await axios.get(`${API_URL}/results`);
-      setResults(response.data.results);
+      setResults(response.data.results || []);
       setStatistics(response.data.statistics);
+      setPublished(response.data.published || false);
+      setMessage(response.data.message || '');
     } catch (error) {
       console.error('Failed to fetch results:', error);
+      setMessage('Failed to load results');
     } finally {
       setLoading(false);
     }
@@ -29,6 +34,33 @@ const Results = () => {
 
   if (loading) {
     return <div className="loading">Loading results...</div>;
+  }
+
+  // Show message if results are not published
+  if (!published) {
+    return (
+      <div className="results-page">
+        <div className="container">
+          <div className="results-card">
+            <h2>Election Results</h2>
+            <div className="no-results">
+              <div className="message info" style={{ 
+                padding: '2rem', 
+                textAlign: 'center',
+                backgroundColor: '#e3f2fd',
+                borderRadius: '8px',
+                marginTop: '2rem'
+              }}>
+                <h3 style={{ marginBottom: '1rem', color: '#1976d2' }}>Results Not Published</h3>
+                <p style={{ fontSize: '1.1rem', color: '#555' }}>
+                  {message || 'Results are not published yet. Please wait for the admin to publish the results.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const maxVotes = Math.max(...results.map(r => r.voteCount), 1);

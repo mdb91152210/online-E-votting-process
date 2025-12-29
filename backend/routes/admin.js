@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Candidate = require('../models/Candidate');
 const Vote = require('../models/Vote');
 const User = require('../models/User');
+const ElectionSettings = require('../models/ElectionSettings');
 const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
@@ -162,6 +163,49 @@ router.get('/users', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error'
+    });
+  }
+});
+
+// @route   GET /api/admin/results-status
+// @desc    Get results published status
+// @access  Private/Admin
+router.get('/results-status', async (req, res) => {
+  try {
+    const settings = await ElectionSettings.getSettings();
+    res.json({
+      success: true,
+      resultsPublished: settings.resultsPublished
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
+
+// @route   PUT /api/admin/results-publish
+// @desc    Publish or unpublish results
+// @access  Private/Admin
+router.put('/results-publish', async (req, res) => {
+  try {
+    const { published } = req.body;
+    const settings = await ElectionSettings.getSettings();
+    settings.resultsPublished = published === true;
+    settings.updatedAt = Date.now();
+    await settings.save();
+
+    res.json({
+      success: true,
+      message: published ? 'Results published successfully' : 'Results unpublished successfully',
+      resultsPublished: settings.resultsPublished
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
     });
   }
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
 import './Voting.css';
@@ -17,11 +17,15 @@ const Voting = () => {
 
   useEffect(() => {
     if (user?.hasVoted) {
-      navigate('/results');
+      setMessage({
+        type: 'info',
+        text: 'You have already cast your vote. Results will be available once the admin publishes them.'
+      });
+      setLoading(false);
       return;
     }
     fetchCandidates();
-  }, [user, navigate]);
+  }, [user]);
 
   const fetchCandidates = async () => {
     try {
@@ -55,11 +59,10 @@ const Voting = () => {
       });
       setMessage({
         type: 'success',
-        text: 'Your vote has been cast successfully!'
+        text: 'Your vote has been cast successfully! Results will be available once the admin publishes them.'
       });
-      setTimeout(() => {
-        navigate('/results');
-      }, 2000);
+      // Don't redirect - let user stay on voting page
+      setSelectedCandidate(null);
     } catch (error) {
       setMessage({
         type: 'error',
@@ -72,6 +75,35 @@ const Voting = () => {
 
   if (loading) {
     return <div className="loading">Loading candidates...</div>;
+  }
+
+  // Show message if user has already voted
+  if (user?.hasVoted) {
+    return (
+      <div className="voting-page">
+        <div className="container">
+          <div className="voting-card">
+            <h2>You Have Already Voted</h2>
+            {message.text && (
+              <div className={`message ${message.type}`} style={{ 
+                padding: '2rem', 
+                textAlign: 'center',
+                backgroundColor: '#e3f2fd',
+                borderRadius: '8px',
+                marginTop: '2rem'
+              }}>
+                <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '1rem' }}>
+                  {message.text}
+                </p>
+                <Link to="/results" className="btn btn-primary">
+                  Check Results Page
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

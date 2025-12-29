@@ -19,6 +19,7 @@ const AdminDashboard = () => {
     isActive: true
   });
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [resultsPublished, setResultsPublished] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -29,6 +30,9 @@ const AdminDashboard = () => {
       if (activeTab === 'overview') {
         const statsRes = await axios.get(`${API_URL}/admin/stats`);
         setStats(statsRes.data.stats);
+        // Fetch results published status
+        const resultsStatusRes = await axios.get(`${API_URL}/admin/results-status`);
+        setResultsPublished(resultsStatusRes.data.resultsPublished);
       } else if (activeTab === 'candidates') {
         const candidatesRes = await axios.get(`${API_URL}/admin/candidates`);
         setCandidates(candidatesRes.data.candidates);
@@ -43,6 +47,38 @@ const AdminDashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleResultsPublish = async () => {
+    try {
+      const response = await axios.put(`${API_URL}/admin/results-publish`, {
+        published: !resultsPublished
+      });
+      
+      if (response.data.success) {
+        setResultsPublished(response.data.resultsPublished);
+        setMessage({
+          type: 'success',
+          text: response.data.message || (response.data.resultsPublished ? 'Results published successfully' : 'Results unpublished successfully')
+        });
+        // Refresh stats to get updated data
+        if (activeTab === 'overview') {
+          const statsRes = await axios.get(`${API_URL}/admin/stats`);
+          setStats(statsRes.data.stats);
+        }
+      } else {
+        setMessage({
+          type: 'error',
+          text: response.data.message || 'Failed to update results status'
+        });
+      }
+    } catch (error) {
+      console.error('Publish results error:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || error.message || 'Failed to update results status. Please check console for details.'
+      });
     }
   };
 
@@ -142,6 +178,42 @@ const AdminDashboard = () => {
 
           {activeTab === 'overview' && stats && (
             <div className="overview">
+              {/* Results Publish Control */}
+              <div style={{ 
+                marginBottom: '2rem', 
+                padding: '1.5rem', 
+                backgroundColor: '#f5f5f5', 
+                borderRadius: '8px',
+                border: '2px solid #e0e0e0'
+              }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>Results Publishing Control</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span style={{ 
+                    padding: '0.5rem 1rem', 
+                    backgroundColor: resultsPublished ? '#4caf50' : '#f44336',
+                    color: 'white',
+                    borderRadius: '4px',
+                    fontWeight: 'bold'
+                  }}>
+                    {resultsPublished ? '✓ Published' : '✗ Not Published'}
+                  </span>
+                  <button
+                    onClick={handleToggleResultsPublish}
+                    className="btn btn-primary"
+                    style={{ 
+                      backgroundColor: resultsPublished ? '#f44336' : '#4caf50'
+                    }}
+                  >
+                    {resultsPublished ? 'Unpublish Results' : 'Publish Results'}
+                  </button>
+                </div>
+                <p style={{ marginTop: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
+                  {resultsPublished 
+                    ? 'Results are currently visible to all users.' 
+                    : 'Results are hidden. Users cannot see results until you publish them.'}
+                </p>
+              </div>
+
               <div className="stats-grid">
                 <div className="stat-card">
                   <div className="stat-icon">👥</div>
